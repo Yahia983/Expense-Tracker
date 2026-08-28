@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Expense Tracking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- =====================================================
+     AUTH SCREEN
+     ===================================================== -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-brand">
+    <div class="auth-brand__mark" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2.5"/><path d="M16 26c1.5 3 4.5 5 8 5s6.5-2 8-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="17" cy="19" r="2.2" fill="currentColor"/><circle cx="31" cy="19" r="2.2" fill="currentColor"/></svg>
+    </div>
+    <h1>Ledger</h1>
+    <p>Track spending, split it with the people who matter, and see exactly where your money goes — synced everywhere you sign in.</p>
+    <ul class="auth-brand__points">
+      <li>Real accounts, synced across every device</li>
+      <li>Shared groups for splitting costs with others</li>
+      <li>Color-coded categories you fully control</li>
+    </ul>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab is-active" id="tab-signin" role="tab" aria-selected="true">Sign in</button>
+        <button type="button" class="auth-tab" id="tab-signup" role="tab" aria-selected="false">Create account</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <form id="signin-form" class="auth-form">
+        <div class="field">
+          <label for="signin-email">Email</label>
+          <input type="email" id="signin-email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="signin-password">Password</label>
+          <input type="password" id="signin-password" autocomplete="current-password" required>
+        </div>
+        <p class="field__error" id="signin-error" role="alert"></p>
+        <button type="submit" class="btn btn--primary btn--block" id="signin-submit">Sign in</button>
+      </form>
+
+      <!-- SIGN UP -->
+      <form id="signup-form" class="auth-form" hidden>
+        <div class="field">
+          <label for="signup-name">Full name</label>
+          <input type="text" id="signup-name" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" autocomplete="new-password" minlength="8" required>
+          <p class="field__hint">At least 8 characters.</p>
+        </div>
+        <p class="field__error" id="signup-error" role="alert"></p>
+        <button type="submit" class="btn btn--primary btn--block" id="signup-submit">Create account</button>
+      </form>
+
+      <p class="auth-note" id="auth-note"></p>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     APP SHELL (hidden until signed in)
+     ===================================================== -->
+<div id="app-shell" class="app-shell" hidden>
+
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <span class="sidebar__mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2.5"/><path d="M16 26c1.5 3 4.5 5 8 5s6.5-2 8-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="17" cy="19" r="2.2" fill="currentColor"/><circle cx="31" cy="19" r="2.2" fill="currentColor"/></svg>
+      </span>
+      <span>Ledger</span>
+    </div>
+
+    <nav class="sidebar__nav" id="sidebar-nav" aria-label="Main navigation">
+      <a href="#/dashboard" data-route="dashboard" class="nav-link">
+        <span class="nav-link__icon" data-icon="dashboard"></span> Dashboard
+      </a>
+      <a href="#/expenses" data-route="expenses" class="nav-link">
+        <span class="nav-link__icon" data-icon="expenses"></span> Expenses
+      </a>
+      <a href="#/groups" data-route="groups" class="nav-link">
+        <span class="nav-link__icon" data-icon="groups"></span> Groups
+      </a>
+      <a href="#/categories" data-route="categories" class="nav-link">
+        <span class="nav-link__icon" data-icon="categories"></span> Categories
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <a href="#/profile" data-route="profile" class="sidebar__user" id="sidebar-user">
+        <span class="avatar" id="sidebar-avatar"></span>
+        <span class="sidebar__user-info">
+          <span class="sidebar__user-name" id="sidebar-name">—</span>
+          <span class="sidebar__user-email" id="sidebar-email">—</span>
+        </span>
+      </a>
+      <button type="button" class="sidebar__signout" id="signout-btn" title="Sign out">
+        <span class="nav-link__icon" data-icon="logout"></span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="topbar">
+      <h1 class="topbar__title" id="topbar-title">Dashboard</h1>
+      <div class="topbar__actions">
+        <span class="sync-pill" id="sync-pill" hidden>
+          <span class="sync-dot"></span> Live
+        </span>
+        <button type="button" class="btn btn--primary" id="quick-add-btn">
+          <span class="nav-link__icon" data-icon="plus"></span> Add expense
+        </button>
+      </div>
+    </header>
+
+    <main class="view-root" id="view-root"></main>
+  </div>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="tabbar" aria-label="Main navigation">
+    <a href="#/dashboard" data-route="dashboard" class="tabbar__link"><span class="nav-link__icon" data-icon="dashboard"></span><span>Home</span></a>
+    <a href="#/expenses" data-route="expenses" class="tabbar__link"><span class="nav-link__icon" data-icon="expenses"></span><span>Expenses</span></a>
+    <button type="button" class="tabbar__fab" id="quick-add-fab" aria-label="Add expense"><span class="nav-link__icon" data-icon="plus"></span></button>
+    <a href="#/groups" data-route="groups" class="tabbar__link"><span class="nav-link__icon" data-icon="groups"></span><span>Groups</span></a>
+    <a href="#/profile" data-route="profile" class="tabbar__link"><span class="nav-link__icon" data-icon="profile"></span><span>Profile</span></a>
+  </nav>
+</div>
+
+<!-- =====================================================
+     MODALS
+     ===================================================== -->
+<div class="modal-overlay" id="expense-modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-labelledby="expense-modal-title">
+    <div class="modal__head">
+      <h2 id="expense-modal-title">Add expense</h2>
+      <button type="button" class="modal__close" id="expense-modal-close" aria-label="Close">✕</button>
+    </div>
+    <form id="expense-form">
+      <div class="field">
+        <label for="exp-title">Title</label>
+        <input type="text" id="exp-title" maxlength="80">
+        <p class="field__error" id="exp-error-title"></p>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="exp-amount">Amount</label>
+          <input type="text" inputmode="decimal" id="exp-amount" placeholder="0.00">
+          <p class="field__error" id="exp-error-amount"></p>
+        </div>
+        <div class="field">
+          <label for="exp-date">Date</label>
+          <input type="date" id="exp-date">
+          <p class="field__error" id="exp-error-date"></p>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="exp-category">Category</label>
+          <select id="exp-category"></select>
+          <p class="field__error" id="exp-error-category"></p>
+        </div>
+        <div class="field">
+          <label for="exp-group">Group</label>
+          <select id="exp-group">
+            <option value="">Personal (just me)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="exp-notes">Notes <span class="field__optional">(optional)</span></label>
+        <textarea id="exp-notes" rows="2" maxlength="240"></textarea>
+      </div>
+      <p class="form-feedback" id="expense-form-feedback" role="status"></p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--danger-outline" id="expense-delete-btn" hidden>Delete</button>
+        <div class="modal__actions-right">
+          <button type="button" class="btn btn--ghost" id="expense-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="expense-save-btn">Add expense</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="category-modal-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-labelledby="category-modal-title">
+    <div class="modal__head">
+      <h2 id="category-modal-title">Add category</h2>
+      <button type="button" class="modal__close" id="category-modal-close" aria-label="Close">✕</button>
+    </div>
+    <form id="category-form">
+      <div class="field">
+        <label for="cat-name">Name</label>
+        <input type="text" id="cat-name" maxlength="40">
+        <p class="field__error" id="cat-error-name"></p>
+      </div>
+      <div class="field">
+        <label>Color</label>
+        <div class="swatch-picker" id="cat-color-picker"></div>
+      </div>
+      <p class="form-feedback" id="category-form-feedback" role="status"></p>
+      <div class="modal__actions">
+        <div></div>
+        <div class="modal__actions-right">
+          <button type="button" class="btn btn--ghost" id="category-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="category-save-btn">Add category</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="group-modal-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-labelledby="group-modal-title">
+    <div class="modal__head">
+      <h2 id="group-modal-title">Create group</h2>
+      <button type="button" class="modal__close" id="group-modal-close" aria-label="Close">✕</button>
+    </div>
+    <form id="group-form">
+      <div class="field">
+        <label for="group-name">Group name</label>
+        <input type="text" id="group-name" maxlength="60" placeholder="e.g. Apartment 4B">
+        <p class="field__error" id="group-error-name"></p>
+      </div>
+      <div class="field">
+        <label>Color</label>
+        <div class="swatch-picker" id="group-color-picker"></div>
+      </div>
+      <p class="form-feedback" id="group-form-feedback" role="status"></p>
+      <div class="modal__actions">
+        <div></div>
+        <div class="modal__actions-right">
+          <button type="button" class="btn btn--ghost" id="group-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn--primary">Create group</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="invite-modal-overlay" hidden>
+  <div class="modal modal--sm" role="dialog" aria-labelledby="invite-modal-title">
+    <div class="modal__head">
+      <h2 id="invite-modal-title">Invite a member</h2>
+      <button type="button" class="modal__close" id="invite-modal-close" aria-label="Close">✕</button>
+    </div>
+    <form id="invite-form">
+      <div class="field">
+        <label for="invite-email">Their email</label>
+        <input type="email" id="invite-email" placeholder="name@example.com">
+        <p class="field__error" id="invite-error-email"></p>
+      </div>
+      <p class="field__hint">They need to already have a Ledger account with this email.</p>
+      <p class="form-feedback" id="invite-form-feedback" role="status"></p>
+      <div class="modal__actions">
+        <div></div>
+        <div class="modal__actions-right">
+          <button type="button" class="btn btn--ghost" id="invite-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn--primary">Send invite</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirm-overlay" hidden>
+  <div class="modal modal--sm" role="alertdialog" aria-labelledby="confirm-title">
+    <div class="modal__head">
+      <h2 id="confirm-title">Are you sure?</h2>
+    </div>
+    <p class="modal__body" id="confirm-body"></p>
+    <div class="modal__actions">
+      <div></div>
+      <div class="modal__actions-right">
+        <button type="button" class="btn btn--ghost" id="confirm-cancel">Cancel</button>
+        <button type="button" class="btn btn--danger" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/views.js"></script>
+<script src="js/router.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
